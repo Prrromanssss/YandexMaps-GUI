@@ -12,7 +12,7 @@ if not response:
     print(map_request)
     print("Http статус:", response.status_code, "(", response.reason, ")")
     sys.exit(1)
-
+"hey"
 map_file = "map.png"
 with open(map_file, "wb") as file:
     file.write(response.content)
