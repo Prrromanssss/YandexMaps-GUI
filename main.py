@@ -3,8 +3,9 @@ import sys
 
 import pygame
 import pygame_gui as p_gui
+
 from map import Map
-from settings import HEIGHT, VIEWS, WIDTH, MANAGE_KEYS
+from settings import HEIGHT, MANAGE_KEYS, VIEWS, WIDTH
 
 
 def change_map_coords(key, map_obj):
@@ -31,8 +32,15 @@ def main():
         text='View',
         manager=manager,
     )
-    search_button = p_gui.elements.UIButton(relative_rect=pygame.Rect((5, 50), (80, 30)), text='Search', manager=manager)
-    entry_line = p_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((5, 85), (80, 30)), manager=manager)
+    search_button = p_gui.elements.UIButton(
+        relative_rect=pygame.Rect((5, 50), (80, 30)),
+        text='Search',
+        manager=manager,
+    )
+    entry_line = p_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect((5, 85), (80, 30)),
+        manager=manager,
+    )
     size_x, size_y = 20, 20
     coord_x, coord_y = 133.795384, -25.694768
     map_obj = Map(screen, coord_x, coord_y, size_x, size_y, VIEWS[0])
@@ -52,7 +60,9 @@ def main():
             if event.type == pygame.USEREVENT:
                 if event.user_type == p_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == change_view_button:
-                        map_obj.view = VIEWS[(VIEWS.index(map_obj.view) + 1) % 3]
+                        map_obj.view = VIEWS[
+                            (VIEWS.index(map_obj.view) + 1) % 3
+                            ]
                     elif event.ui_element == search_button:
                         map_obj.search_object(entry_line.text)
                     map_obj.show_map()

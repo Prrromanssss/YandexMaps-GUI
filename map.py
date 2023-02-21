@@ -3,28 +3,28 @@ import sys
 import pygame
 import requests
 
+import settings
+
 
 class Map:
     def __init__(self, screen, coord_x, coord_y, size_x, size_y, view):
         self.screen = screen
-        self.screen = screen
-        self.coord_x = coord_x
-        self.coord_y = coord_y
-        self.size_x = size_x
-        self.size_y = size_y
+        self.coord_x, self.coord_y = coord_x, coord_y
+        self.size_x, self.size_y = size_x, size_y
         self.view = view
         self.duration = 1
         self.map_params = {}
 
     def get_map(self):
-        map_request = "https://static-maps.yandex.ru/1.x/"
-        params = {'ll': f'{self.coord_x},{self.coord_y}',
-                  'spn': f'{self.size_x},{self.size_y}',
-                  'l': self.view,
-                  "apikey": "40d1649f-0493-4b70-98ba-98533de7710b"}
+        params = {
+            "ll": f'{self.coord_x},{self.coord_y}',
+            "spn": f'{self.size_x},{self.size_y}',
+            "l": self.view,
+            "apikey": settings.APIKEY,
+            }
         for key, value in self.map_params.items():
             params[key] = value
-        return map_request, params
+        return settings.STATIC_MAP_URL, params
 
     def show_map(self):
         map_file = "map.png"
@@ -33,7 +33,7 @@ class Map:
         if not response:
             print("Ошибка выполнения запроса:")
             print(self.get_map())
-            print("Http статус:", response.status_code, "(", response.reason, ")")
+            print(f"Http статус: {response.status_code} ( {response.reason} )")
             sys.exit(1)
 
         with open(map_file, "wb") as file:
@@ -87,7 +87,7 @@ class Map:
 
     def set_pt(self, coords):
         coord_x, coord_y = coords
-        self.map_params["pt"] = "{0},{1},pm2rdl".format(coord_x, coord_y)
+        self.map_params["pt"] = f"{coord_x},{coord_y},pm2rdl"
 
     def search_object(self, text):
         coords = (self.coord_x, self.coord_y)
@@ -102,22 +102,21 @@ class Map:
 
     @staticmethod
     def get_geocoords_by_text(text, coords):
-        search_api_server = "https://search-maps.yandex.ru/v1/"
         search_params = {
-            "apikey": "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3",
+            "apikey": settings.GEOCODE_APIKEY,
             "text": text,
             "ll": f'{coords[0]},{coords[1]}',
             "lang": "ru_RU",
             "type": 'geo',
-            "results": 1
+            "results": 1,
         }
-        response = requests.get(search_api_server, params=search_params)
+        response = requests.get(settings.SEARCH_MAP_URL, params=search_params)
         if not response:
             return
         json_response = response.json()
-        if not json_response['features']:
+        if not json_response["features"]:
             return
-        organization = json_response['features'][0]
+        organization = json_response["features"][0]
         point = organization["geometry"]["coordinates"]
-        address = organization['properties']['GeocoderMetaData']['text']
+        address = organization["properties"]["GeocoderMetaData"]["text"]
         return point, address
