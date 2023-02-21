@@ -3,32 +3,23 @@ import sys
 
 import pygame
 import pygame_gui as p_gui
-import requests
-
-from settings import HEIGHT, VIEWS, WIDTH
-
-
-def get_map(coord_x, coord_y, size_x, size_y, view):
-    map_request = (
-        f"https://static-maps.yandex.ru/1.x/"
-        f"?ll={coord_x},{coord_y}&spn={size_x},{size_y}&l={view}"
-        )
-    return map_request
+from map import Map
+from settings import HEIGHT, VIEWS, WIDTH, MANAGE_KEYS
 
 
-def show_map(screen, coord_x, coord_y, size_x, size_y, view):
-    map_file = "map.png"
-    response = requests.get(get_map(coord_x, coord_y, size_x, size_y, view))
-    if not response:
-        print("Ошибка выполнения запроса:")
-        print(get_map(coord_x, coord_y, size_x, size_y))
-        print("Http статус:", response.status_code, "(", response.reason, ")")
-        sys.exit(1)
-
-    with open(map_file, "wb") as file:
-        file.write(response.content)
-
-    screen.blit(pygame.image.load(map_file), (80, 0))
+def change_map_coords(key, map_obj):
+    if key == pygame.K_PAGEUP:
+        map_obj.reducing_spn()
+    elif key == pygame.K_PAGEDOWN:
+        map_obj.increasing_spn()
+    elif key == pygame.K_RIGHT:
+        map_obj.shifting_right()
+    elif key == pygame.K_LEFT:
+        map_obj.shifting_left()
+    elif key == pygame.K_UP:
+        map_obj.shifting_up()
+    elif key == pygame.K_DOWN:
+        map_obj.shifting_down()
 
 
 def main():
@@ -36,64 +27,35 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     manager = p_gui.UIManager((WIDTH, HEIGHT))
     change_view_button = p_gui.elements.UIButton(
-        relative_rect=pygame.Rect(5, 5, 70, 30),
+        relative_rect=pygame.Rect(5, 5, 80, 30),
         text='View',
         manager=manager,
     )
+    search_button = p_gui.elements.UIButton(relative_rect=pygame.Rect((5, 50), (80, 30)), text='Search', manager=manager)
+    entry_line = p_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((5, 85), (80, 30)), manager=manager)
     size_x, size_y = 20, 20
     coord_x, coord_y = 133.795384, -25.694768
-    duration = 1
-    view = VIEWS[0]
-    show_map(screen, coord_x, coord_y, size_x, size_y, view)
-
+    map_obj = Map(screen, coord_x, coord_y, size_x, size_y, VIEWS[0])
+    map_obj.show_map()
     while True:
         time_delta = clock.tick(60) / 1000
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 os.remove("map.png")
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_PAGEUP:
-                    size_x /= 1.5
-                    size_y /= 1.5
-                if event.key == pygame.K_PAGEDOWN:
-                    size_x *= 1.5
-                    if size_x > 90:
-                        size_x = 90
-                    size_y *= 1.5
-                    if size_y > 90:
-                        size_y = 90
-                if event.key == pygame.K_RIGHT:
-                    coord_x += size_x * 2.
-                    coord_x = -(-coord_x % 180) if coord_x >= 180 else coord_x
-                if event.key == pygame.K_LEFT:
-                    coord_x -= size_x * 2.
-                    coord_x = coord_x % 180 if coord_x <= -180 else coord_x
-                if event.key == pygame.K_UP:
-                    coord_y += size_y * 2. * duration
-                    if abs(coord_y) >= 90:
-                        coord_y = (
-                            -(-coord_y % 90) if coord_y < 0
-                            else -coord_y % 90
-                            )
-                        coord_x = -coord_x
-                        duration = -duration
-                if event.key == pygame.K_DOWN:
-                    coord_y -= size_y * 2. * duration
-                    if abs(coord_y) >= 90:
-                        coord_y = (
-                            -(-coord_y % 90) if coord_y < 0
-                            else -coord_y % 90
-                            )
-                        coord_x = -coord_x
-                        duration = -duration
-                show_map(screen, coord_x, coord_y, size_x, size_y, view)
+                if event.key in MANAGE_KEYS:
+                    change_map_coords(event.key, map_obj)
+                    map_obj.show_map()
             if event.type == pygame.USEREVENT:
                 if event.user_type == p_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == change_view_button:
-                        view = VIEWS[(VIEWS.index(view) + 1) % 3]
-                show_map(screen, coord_x, coord_y, size_x, size_y, view)
+                        map_obj.view = VIEWS[(VIEWS.index(map_obj.view) + 1) % 3]
+                    elif event.ui_element == search_button:
+                        map_obj.search_object(entry_line.text)
+                    map_obj.show_map()
             manager.process_events(event)
         manager.update(time_delta)
         manager.draw_ui(screen)
