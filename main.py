@@ -41,6 +41,11 @@ def main():
         relative_rect=pygame.Rect((5, 85), (80, 30)),
         manager=manager,
     )
+    reset_button = p_gui.elements.UIButton(
+        relative_rect=pygame.Rect((5, 120), (80, 30)),
+        text='Reset',
+        manager=manager,
+    )
     size_x, size_y = 20, 20
     coord_x, coord_y = 133.795384, -25.694768
     map_obj = Map(screen, coord_x, coord_y, size_x, size_y, VIEWS[0])
@@ -65,6 +70,8 @@ def main():
                             ]
                     elif event.ui_element == search_button:
                         map_obj.search_object(entry_line.text)
+                    elif event.ui_element == reset_button:
+                        map_obj.reset_object()
                     map_obj.show_map()
             manager.process_events(event)
         manager.update(time_delta)

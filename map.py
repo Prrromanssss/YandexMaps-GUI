@@ -100,6 +100,9 @@ class Map:
         self.set_pt(coords)
         self.coord_x, self.coord_y = coords
 
+    def reset_object(self):
+        self.map_params["pt"] = ""
+
     @staticmethod
     def get_geocoords_by_text(text, coords):
         search_params = {
