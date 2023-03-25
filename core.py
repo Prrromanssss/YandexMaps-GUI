@@ -67,20 +67,20 @@ def create_widgets(manager):
     pygame_gui.elements.ui_drop_down_menu.UIDropDownMenu(
         options_list=['схема', 'спутник', 'гибрид'],
         starting_option='схема',
-        relative_rect=pygame.Rect((515, 0), (85, 40)),
+        relative_rect=pygame.Rect((0, 0), (100, 40)),
         manager=manager,
     )
     find = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((100, 0), (100, 40)),
+        relative_rect=pygame.Rect((515, 0), (85, 40)),
         text='Найти',
         manager=manager,
     )
     entry = pygame_gui.elements.UITextEntryLine(
-        relative_rect=pygame.Rect((0, 0), (100, 40)),
+        relative_rect=pygame.Rect((415, 0), (100, 40)),
         manager=manager,
     )
     reset = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((230, 0), (250, 40)),
+        relative_rect=pygame.Rect((130, 0), (250, 40)),
         text='Сброс поискового результата',
         manager=manager,
     )
@@ -99,5 +99,5 @@ def create_widgets(manager):
         'reset': reset,
         'address': address,
         'postal_code_in': postal_code_in
-    }
+        }
     return widgets
