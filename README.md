@@ -2,6 +2,8 @@
 
 ![flake8 test](https://github.com/Prrromanssss/YandexMaps-GUI/actions/workflows/python-package.yml/badge.svg)
 
+![Image of the app](https://github.com/Prrromanssss/YandexMaps-GUI/raw/main/media-for-README/main-image.png)
+
 ## About
 
 This project presents work with the Yandex Maps API implemented using a graphical interface
